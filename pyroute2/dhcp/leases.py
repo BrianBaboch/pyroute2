@@ -120,6 +120,16 @@ class Lease(abc.ABC):
         return self.routers[0] if self.routers is not None else None
 
     @property
+    def broadcast_address(self) -> str | None:
+        '''The broadcast address for this network.'''
+        return self.ack['options'].get('broadcast_address')
+
+    @property
+    def mtu(self) -> int | None:
+        '''The MTU for this interface.'''
+        return self.ack['options'].get('mtu_size')
+
+    @property
     def server_id(self) -> str:
         '''The IP address of the server which allocated this lease.'''
         return self.ack['options']['server_id']
