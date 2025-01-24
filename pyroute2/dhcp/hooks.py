@@ -45,3 +45,34 @@ class ConfigureIP(Hook):
                 mask=lease.subnet_mask,
                 broadcast=lease.broadcast_address
             )
+
+
+class ConfigureDefaultRoute(Hook):
+    async def bound(self, lease: Lease):
+        if lease.default_gateway is None:
+            LOG.error("Lease doesn't contain default gateway")
+            return
+        LOG.debug('Adding %s as default route through %s',
+                  lease.default_gateway, lease.interface)
+        async with AsyncIPRoute() as ipr:
+            ifindex = await ipr.link_lookup(ifname=lease.interface),
+            await ipr.route(
+                "replace",
+                dst="0.0.0.0/0",
+                gateway=lease.default_gateway,
+                oif=ifindex
+            )
+
+    async def unbound(self, lease: Lease):
+        if lease.default_gateway is None:
+            LOG.error("Lease doesn't contain default gateway")
+            return
+        LOG.debug('Removing %s as default route.', lease.default_gateway)
+        async with AsyncIPRoute() as ipr:
+            ifindex = await ipr.link_lookup(ifname=lease.interface)
+            await ipr.route(
+                "del",
+                dst="0.0.0.0/0",
+                gateway=lease.default_gateway,
+                oif=ifindex
+            )
