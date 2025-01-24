@@ -108,10 +108,6 @@ class Lease(abc.ABC):
         return self.ack['options'].get('router', [])
 
     @property
-    def name_servers(self) -> str:  # XXX: list ?
-        return self.ack['options']['name_server']
-
-    @property
     def default_gateway(self) -> str | None:
         '''The default gateway for this interface.
 
@@ -130,9 +126,13 @@ class Lease(abc.ABC):
         return self.ack['options'].get('mtu_size')
 
     @property
-    def server_id(self) -> str:
+    def name_servers(self) -> str | None:  # XXX: list ?
+        return self.ack['options'].get('name_server')
+
+    @property
+    def server_id(self) -> str | None:
         '''The IP address of the server which allocated this lease.'''
-        return self.ack['options']['server_id']
+        return self.ack['options'].get('server_id')
 
     @abc.abstractmethod
     def dump(self) -> None:
